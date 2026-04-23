@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BaileyShop V3.0</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial; background: #111; color: white; padding: 20px; max-width: 600px; margin: auto; }
+        .video { background: #222; padding: 15px; margin: 10px 0; border-radius: 10px; }
+        input, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: none; box-sizing: border-box; }
+        button { background: #E91E63; color: white; font-weight: bold; cursor: pointer; }
+        h1 { text-align: center; color: #E91E63; }
+        a { color: #00BFFF; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <h1>BaileyShop V3.0 🔥</h1>
+    
+    <h2>Ajouter une vidéo</h2>
+    <input id="titre" placeholder="Titre de la vidéo">
+    <input id="lien" placeholder="Lien Facebook/YouTube">
+    <input id="whatsapp" placeholder="Numéro WhatsApp sans +">
+    <button onclick="ajouterVideo()">Publier la vidéo</button>
+    
+    <h2>Vidéos publiées</h2>
+    <div id="liste-videos">Chargement...</div>
+
+<script>
+    const SUPABASE_URL = 'https://bqxdglywtjgypyiwhfxt.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_kKQsD-0lGYH2ncUs8yhv5Q_knAgp-Dv';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function ajouterVideo() {
+        const titre = document.getElementById('titre').value;
+        const lien = document.getElementById('lien').value;
+        const whatsapp = document.getElementById('whatsapp').value;
+        
+        if (!titre || !lien) return alert('Titre et lien obligatoires !');
+        
+        const { error } = await supabase.from('videos').insert([{ titre, lien, whatsapp }]);
+        
+        if (error) alert('Erreur: ' + error.message);
+        else {
+            alert('Vidéo publiée boss !');
+            document.getElementById('titre').value = '';
+            document.getElementById('lien').value = '';
+            document.getElementById('whatsapp').value = '';
+            chargerVideos();
+        }
+    }
+
+    async function chargerVideos() {
+        const { data, error } = await supabase.from('videos').select('*').order('created_at', { ascending: false });
+        
+        if (error) return document.getElementById('liste-videos').innerHTML = 'Erreur chargement';
+        if (data.length === 0) return document.getElementById('liste-videos').innerHTML = 'Aucune vidéo. Sois le premier !';
+        
+        document.getElementById('liste-videos').innerHTML = data.map(v => `
+            <div class="video">
+                <h3>${v.titre}</h3>
+                <a href="${v.lien}" target="_blank">▶️ Voir la vidéo</a><br><br>
+                <a href="https://wa.me/${v.whatsapp}" target="_blank">💬 WhatsApp: ${v.whatsapp}</a>
+            </div>
+        `).join('');
+    }
+
+    chargerVideos();
+</script>
+</body>
+</html>
