@@ -28,7 +28,13 @@
 <script>
     const SUPABASE_URL = 'https://bqxdglwtjgypyuiwhfxt.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_kKQsD-0lGYH2ncUs8yhv5Q_knAgp-Dv';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    let supabase;
+    try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (e) {
+        document.getElementById('liste-videos').innerHTML = 'Erreur connexion Supabase: ' + e.message;
+    }
 
     async function ajouterVideo() {
         const titre = document.getElementById('titre').value;
@@ -39,8 +45,10 @@
         
         const { error } = await supabase.from('videos').insert([{ titre, lien, whatsapp }]);
         
-        if (error) alert('Erreur: ' + error.message);
-        else {
+        if (error) {
+            alert('Erreur: ' + error.message);
+            console.error(error);
+        } else {
             alert('Vidéo publiée boss !');
             document.getElementById('titre').value = '';
             document.getElementById('lien').value = '';
@@ -50,18 +58,30 @@
     }
 
     async function chargerVideos() {
-        const { data, error } = await supabase.from('videos').select('*').order('created_at', { ascending: false });
-        
-        if (error) return document.getElementById('liste-videos').innerHTML = 'Erreur chargement';
-        if (data.length === 0) return document.getElementById('liste-videos').innerHTML = 'Aucune vidéo. Sois le premier !';
-        
-        document.getElementById('liste-videos').innerHTML = data.map(v => `
-            <div class="video">
-                <h3>${v.titre}</h3>
-                <a href="${v.lien}" target="_blank">▶️ Voir la vidéo</a><br><br>
-                <a href="https://wa.me/${v.whatsapp}" target="_blank">💬 WhatsApp: ${v.whatsapp}</a>
-            </div>
-        `).join('');
+        try {
+            const { data, error } = await supabase.from('videos').select('*').order('created_at', { ascending: false });
+            
+            if (error) {
+                document.getElementById('liste-videos').innerHTML = 'Erreur: ' + error.message;
+                console.error(error);
+                return;
+            }
+            if (data.length === 0) {
+                document.getElementById('liste-videos').innerHTML = 'Aucune vidéo. Sois le premier !';
+                return;
+            }
+            
+            document.getElementById('liste-videos').innerHTML = data.map(v => `
+                <div class="video">
+                    <h3>${v.titre}</h3>
+                    <a href="${v.lien}" target="_blank">▶️ Voir la vidéo</a><br><br>
+                    <a href="https://wa.me/${v.whatsapp}" target="_blank">💬 WhatsApp: ${v.whatsapp}</a>
+                </div>
+            `).join('');
+        } catch (e) {
+            document.getElementById('liste-videos').innerHTML = 'Erreur JS: ' + e.message;
+            console.error(e);
+        }
     }
 
     chargerVideos();
