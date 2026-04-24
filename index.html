@@ -27,13 +27,13 @@
 
 <script>
     const SUPABASE_URL = 'https://bqxdglwtjgypyuiwhfxt.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_kKQsD-0lGYH2ncUs8yhv5Q_knAgp-Dv';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxeGRnbHd0amd5cHl1aXdoZnh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzA4MzYsImV4cCI6MjA5MjM0NjgzNn0.Gsfiu0hfniLucLmgEE1KP3M7-gdTpvrAB1UA_jHgJmc';
     
     let supabase;
     try {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch (e) {
-        document.getElementById('liste-videos').innerHTML = 'Erreur connexion Supabase: ' + e.message;
+        document.getElementById('liste-videos').innerHTML = 'Erreur connexion: ' + e.message;
     }
 
     async function ajouterVideo() {
